@@ -10,7 +10,7 @@ from elevenlabs.client import ElevenLabs
 # ==========================================
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 ELEVENLABS_API_KEY = st.secrets["ELEVENLABS_API_KEY"]
-VOICE_ID = "VEV9aCDsytj7WAelMLnd"
+VOICE_ID = "6KcjEPr15ksjFhMMxIVy"
 
 # ==========================================
 # 2. INITIALIZATION
