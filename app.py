@@ -8,7 +8,6 @@ from elevenlabs.client import ElevenLabs
 # ==========================================
 # 1. CONFIGURATION & KEYS
 # ==========================================
-# Replace your old lines with these:
 GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 ELEVENLABS_API_KEY = st.secrets["ELEVENLABS_API_KEY"]
 VOICE_ID = "pNInz6obpgDQGcFmaJgB"
@@ -18,7 +17,8 @@ VOICE_ID = "pNInz6obpgDQGcFmaJgB"
 # ==========================================
 @st.cache_resource
 def init_clients():
-    ai_client = genai.Client(api_key=GEMINI_API_KEY)
+    # FIXED: Changed from genai.Client to just Client
+    ai_client = Client(api_key=GEMINI_API_KEY)
     audio_client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
     return ai_client, audio_client
 
@@ -31,7 +31,6 @@ except Exception as e:
 # 3. HELPER FUNCTIONS
 # ==========================================
 def render_svg(filename):
-    # This safely finds your robot.svg no matter where you run the code
     base_path = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(base_path, filename)
     
@@ -72,7 +71,7 @@ with col2:
     # 1. Display the Mascot
     render_svg("robot.svg")
     
-    # 2. Initialize Chat History with your exact custom greeting
+    # 2. Initialize Chat History
     if "messages" not in st.session_state:
         st.session_state.messages = []
         greeting = "Hello! I am StormBot. How can I help you today?"
@@ -86,19 +85,16 @@ with col2:
     # 4. Chat Input & AI Response Logic
     if user_question := st.chat_input("Ask about weather..."):
         
-        # Show what the user typed
         st.session_state.messages.append({"role": "user", "content": user_question})
         with st.chat_message("user"):
             st.write(user_question)
             
-        # Define StormBot's personality
         system_instruction = (
             "You are StormBot, an advanced severe weather console assistant. "
             "You are a world-class expert on every piece of meteorological history. "
             "Keep your explanations highly engaging, clear, and perfectly formatted for voice output."
         )
         
-        # Generate and show the AI's response
         with st.chat_message("assistant"):
             try:
                 full_prompt = f"User Question: {user_question}"
@@ -110,7 +106,6 @@ with col2:
                 bot_response = ai_response.text
                 st.write(bot_response)
                 
-                # Save response to history
                 st.session_state.messages.append({"role": "assistant", "content": bot_response})
                 
                 # Generate and play Audio
