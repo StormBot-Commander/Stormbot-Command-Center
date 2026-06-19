@@ -88,11 +88,11 @@ with col2:
         st.session_state.messages.append({"role": "user", "content": user_question})
         with st.chat_message("user"):
             st.write(user_question)
-            
+        # Define StormBot's personality
         system_instruction = (
-            "You are StormBot, an advanced severe weather console assistant. "
-            "You are a world-class expert on every piece of meteorological history. "
-            "Keep your explanations highly engaging, clear, and perfectly formatted for voice output."
+            "You are StormBot, a severe weather assistant. "
+            "Keep your responses very brief, direct, and conversational. "
+            "Avoid long introductions. Get straight to the point."
         )
         
         with st.chat_message("assistant"):
