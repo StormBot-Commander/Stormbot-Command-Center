@@ -8,8 +8,9 @@ from elevenlabs.client import ElevenLabs
 # ==========================================
 # 1. CONFIGURATION & KEYS
 # ==========================================
-GEMINI_API_KEY = "AQ.Ab8RN6LwNr8--u9q-WOaWTclD_WkGjxBMOtcFQMqXo6fKVK9_A"
-ELEVENLABS_API_KEY = "sk_3b7559ed0af0920ec1a9b445669bc0ce99e4e34f74dc3dca"
+# Replace your old lines with these:
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+ELEVENLABS_API_KEY = st.secrets["ELEVENLABS_API_KEY"]
 VOICE_ID = "pNInz6obpgDQGcFmaJgB"
 
 # ==========================================
