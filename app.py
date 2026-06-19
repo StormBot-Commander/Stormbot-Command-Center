@@ -45,24 +45,28 @@ def render_svg(filename):
 # ==========================================
 # 4. PAGE LAYOUT & UI
 # ==========================================
-# ==========================================
-# 4. PAGE LAYOUT & UI
-# ==========================================
 st.set_page_config(page_title="StormBot", layout="wide")
 st.title("⛈️ StormBot National Command Center")
 
-# SWAPPED: Chat (col1) now comes before Alerts (col2)
-col1, col2 = st.columns([1, 1.2])
+col1, col2 = st.columns([1.2, 1])
 
-# --- Column 1: Chat Interface (Now on top for mobile) ---
+# --- Column 1: Live Alerts ---
 with col1:
-    st.header("💬 Chat with StormBot")
-    # ... (Keep all your existing Chat code here)
-
-# --- Column 2: Live Alerts (Now below the chat on mobile) ---
-with col2:
     st.header("📡 Live Alerts")
-    # ... (Keep all your existing Alerts code here)
+    try:
+        response = requests.get("https://api.weather.gov/alerts/active", headers={"User-Agent": "WeatherApp/1.0"}, timeout=5)
+        alerts = response.json().get("features", [])
+        if not alerts:
+            st.success("No active weather alerts right now.")
+        for alert in alerts[:20]:
+            props = alert.get("properties", {})
+            st.error(f"**{props.get('event')}** - {props.get('areaDesc')}")
+    except Exception as e:
+        st.warning("Could not fetch live alerts right now. The Weather API might be busy.")
+
+# --- Column 2: Chat Interface ---
+with col2:
+    st.header("💬 Chat with StormBot")
     
     # 1. Display the Mascot
     render_svg("robot.svg")
@@ -84,7 +88,8 @@ with col2:
         st.session_state.messages.append({"role": "user", "content": user_question})
         with st.chat_message("user"):
             st.write(user_question)
-        # Define StormBot's personality
+            
+       # Define StormBot's personality
         system_instruction = (
             "You are StormBot, a severe weather assistant. "
             "Keep your responses very brief, direct, and conversational. "
