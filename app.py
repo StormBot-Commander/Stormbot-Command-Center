@@ -50,19 +50,27 @@ st.title("⛈️ StormBot National Command Center")
 
 col1, col2 = st.columns([1.2, 1])
 
-# --- Column 1: Live Alerts ---
+# --- Column 1: Live Alerts & SPC Outlook ---
 with col1:
     st.header("📡 Live Alerts")
     try:
-        response = requests.get("https://api.weather.gov/alerts/active", headers={"User-Agent": "WeatherApp/1.0"}, timeout=5)
+        # Fetching national alerts with a limit to keep the UI snappy
+        response = requests.get("https://api.weather.gov/alerts/active?limit=20", headers={"User-Agent": "WeatherApp/1.0"}, timeout=5)
         alerts = response.json().get("features", [])
+        
         if not alerts:
             st.success("No active weather alerts right now.")
-        for alert in alerts[:20]:
+        
+        for alert in alerts:
             props = alert.get("properties", {})
-            st.error(f"**{props.get('event')}** - {props.get('areaDesc')}")
+            # Filtering for severe alerts to keep the list clean
+            if props.get('severity') in ['Extreme', 'Severe']:
+                st.error(f"**{props.get('event')}** - {props.get('areaDesc')}")
     except Exception as e:
         st.warning("Could not fetch live alerts right now. The Weather API might be busy.")
+
+    st.subheader("⚠️ SPC Outlook")
+    st.markdown("[View Full SPC Outlook Map](https://www.spc.noaa.gov/products/outlook/)")
 
 # --- Column 2: Chat Interface ---
 with col2:
@@ -89,19 +97,26 @@ with col2:
         with st.chat_message("user"):
             st.write(user_question)
             
-       # Define StormBot's personality
-        system_instruction = (
-            "You are StormBot, a severe weather assistant. "
-            "Keep your responses very brief, direct, and conversational. "
-            "Avoid long introductions. Get straight to the point."
-        )
+        # Context gathering
+        current_alerts = [f"{a['properties']['event']} in {a['properties']['areaDesc']}" for a in alerts[:5]]
+        alert_context = "Current National Alerts: " + ", ".join(current_alerts) if current_alerts else "No active alerts."
+
+        # Define StormBot's personality
+        # Updated Y'allbot-style personality
+system_instruction = (
+    "You are StormBot, a Southern-style severe weather meteorologist. "
+    "Your personality is friendly, conversational, and uses slight Southern colloquialisms (like 'y'all', 'fixin' to', 'keep an eye on it'). "
+    "You are obsessed with radar details—always mention what you're seeing on the screen in a plain, helpful way. "
+    "When there is severe weather, you switch to 'alert mode': stay serious, clear, and urgent. "
+    "Keep responses short, punchy, and sound like you're talking to a neighbor. "
+    "Never sound like a robot; sound like a person sitting in the weather center."
+)
         
         with st.chat_message("assistant"):
             try:
-                full_prompt = f"User Question: {user_question}"
                 ai_response = ai_client.models.generate_content(
                     model='gemini-2.5-flash', 
-                    contents=full_prompt, 
+                    contents=user_question, 
                     config={"system_instruction": system_instruction}
                 )
                 bot_response = ai_response.text
