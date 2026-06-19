@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import base64
 import os
-from google import genai
+from google.genai import Client
 from elevenlabs.client import ElevenLabs
 
 # ==========================================
